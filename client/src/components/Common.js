@@ -1,7 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Seed from "./Seed.js";
 import randomIcon from '../icons/renew.svg'
 import seedrandom from 'seedrandom';
 
@@ -11,68 +9,31 @@ const Common = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [errorValue, setErrorValue] = useState(0);
   const [inputValue , setInputValue] = useState(0);
-  const [sterileData, setSterileData] = useState([]);
   const [seedValue, setSeedValue] = useState(Math.floor(Math.random() * 1000000));
-  const [currentPage, setCurrentPage] = useState(1);
   const [lengthUsers, setLengthUsers] = useState(length);
 
-  // // REGION
   const handleChangeRegion = async (e) => {
     const newRegion = e.target.value;
     setSelectedRegion(newRegion);
-    // const resp = await axios.post('http://localhost:3030/region', { 'region': newRegion });
-    // setAllUsers(resp.data);
-    // setSterileData(resp.data);
-    // getUsers();
-  }
-  //  useEffect(() => {
-  //   getUsers()
-  // }, []);
+  };
 
-  // GET USERS
-  // const getUsers = async () => {
-  //   // console.log(selectedRegion, inputValue, seedValue)
-  //   try {
-  //     // const send = await axios.post('http://localhost:3030/users', { selectedRegion, inputValue, seedValue })
-  //     const response = await axios.get(`http://localhost:3030/users`);
-  //     const updateUsers = await handleExchangeError(response.data, errorValue);
-  //     setAllUsers(previous => [...previous, ...updateUsers])
-  //     setSterileData(previous => [...previous, ...response.data])
-  //     // setAllUsers(send.data)
-  //   } catch (e) {
-  //     console.log(e)
-  //   }
-  // }
-
- 
- 
-  // SCROLL
   const handlerScroll = async (e) => {
-    if (e.target.documentElement.scrollHeight - (e.target.documentElement.scrollTop + window.innerHeight) < 100) {
-      setLengthUsers((prevLength) => prevLength + length)
-      fetchUsers()
+    if (Math.floor(e.target.documentElement.scrollHeight - (e.target.documentElement.scrollTop + window.innerHeight)) < 1) {
+      setLengthUsers((prevLength) => prevLength + length / 2);
     }
-  }
+  };
+
   useEffect(() => {
-    document.addEventListener('scroll', handlerScroll)
+    document.addEventListener('scroll', handlerScroll);
     return () => {
-      document.removeEventListener('scroll', handlerScroll)
+      document.removeEventListener('scroll', handlerScroll);
     }
   });
   
-//   // ERROR 
   const handleChangeSlider = async (e) => {
     setErrorValue(Number(e.target.value));
     setInputValue(Number(e.target.value));
-    // getUsers();
-    // const updateUsers = await handleExchangeError(sterileData.slice(0, 20), e.target.value);
-    // setAllUsers(updateUsers);
   };
-  
-  // const handleExchangeError = async (allUsers, n) => {
-    // const resp =  await axios.post('http://localhost:3030/update', { allUsers, n });
-    // return resp.data;
-  // };
 
   const handleChangeInput = async (e) => {
     setInputValue('');
@@ -80,37 +41,32 @@ const Common = () => {
       if (Number(e.target.value) < 1001) {
         setInputValue(Number(e.target.value));
         setErrorValue(Number(e.target.value) / 100);
-        // const updateUsers = await handleExchangeError(sterileData.slice(0, 20), Number(e.target.value) / 100);
-        // setAllUsers(updateUsers)
-        // getUsers()
       }
     }
   };
 
-//   // SEED
-  const handleChangeSeed = async (e) => {
+  const handleChangeSeed = (e) => {
     e.preventDefault();
     const randomSeed = seedrandom(seedValue);
     const newSeed = Math.floor(randomSeed.quick() * 1000000);
-    setSeedValue(newSeed)
-  }
+    setSeedValue(newSeed);
+  };
 
-  // useEffect(() => {
-  //   postSeed();
-  // }, [])
-   
- const fetchUsers = async () => {
+  const fetchUsers = async () => {
+    if (errorValue > 10) {
+      setErrorValue(inputValue / 100);
+    };
     try {
-      const response = await axios.post('http://localhost:3030/users', { 'region': selectedRegion, 'seed': seedValue, 'errors': inputValue, 'length': lengthUsers })
+      const response = await axios.post('http://localhost:3030/users', { 'region': selectedRegion, 'seed': Number(seedValue), 'errors': errorValue, 'length': lengthUsers });
       setAllUsers(response.data)
     } catch (e) {
       console.log(e)
     }
-  }
+  };
 
-useEffect(() => {
-  fetchUsers()
-}, [selectedRegion, seedValue, inputValue])
+  useEffect(() => {
+    fetchUsers();
+  }, [selectedRegion, seedValue, inputValue, lengthUsers]);
 
   return (
     <div className="pt-4">
