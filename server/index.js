@@ -69,9 +69,14 @@ const app = () => {
 
   app.post('/users', (req, res) => {
     const { region, seed, errors, length } = req.body;
-    // console.log(seed)
     const users = createRandomUser(region, seed, length);
-    res.send(users)
+    if (errors === 0) {
+      res.send(users)
+    } else {
+      const exchangeUsers = getRandomFunction(users, errors);
+      res.send(exchangeUsers);
+    }
+    // console.log(seed)
   })
 
   app.listen(PORT, () => {

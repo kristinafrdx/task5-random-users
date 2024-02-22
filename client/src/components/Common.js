@@ -50,6 +50,7 @@ const Common = () => {
   const handlerScroll = async (e) => {
     if (e.target.documentElement.scrollHeight - (e.target.documentElement.scrollTop + window.innerHeight) < 100) {
       setLengthUsers((prevLength) => prevLength + length)
+      fetchUsers()
     }
   }
   useEffect(() => {
